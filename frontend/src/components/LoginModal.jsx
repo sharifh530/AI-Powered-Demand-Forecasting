@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { X, Lock, User, Sparkles, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { X, Lock, User, ShieldAlert } from 'lucide-react';
 
 export const LoginModal = ({ isOpen, onClose }) => {
   const { login } = useAuth();
@@ -36,29 +36,25 @@ export const LoginModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl p-6 relative">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-graphite-950/80">
+      <div className="w-full max-w-md bg-graphite-900 border border-hairline shadow-2xl p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+          className="absolute top-4 right-4 p-1 text-paper-muted hover:text-paper transition"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <Lock className="w-5 h-5" />
-          </div>
+        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-hairline">
+          <Lock className="w-5 h-5 text-signal-amber shrink-0" />
           <div>
-            <h2 className="text-lg font-bold text-slate-100">Sign In to DemandAI</h2>
-            <p className="text-xs text-slate-400">JWT Authentication & Role-Based Access</p>
+            <h2 className="text-lg font-display font-bold text-paper">Sign in to ForecastAI</h2>
+            <p className="text-xs text-paper-muted">JWT authentication &amp; role-based access</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mb-4 p-3 border-l-[3px] border-l-status-critical bg-status-critical/10 text-status-critical text-xs flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -66,55 +62,54 @@ export const LoginModal = ({ isOpen, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Username</label>
+            <label className="block text-xs font-medium text-paper-muted mb-1.5">Username</label>
             <div className="relative">
-              <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+              <User className="w-4 h-4 text-paper-dim absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition font-mono"
+                className="w-full pl-9 pr-3 py-2 bg-graphite-950 border border-hairline text-xs text-paper focus:outline-none focus:border-signal-amber transition font-mono"
                 placeholder="e.g. planner or admin"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+            <label className="block text-xs font-medium text-paper-muted mb-1.5">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+              <Lock className="w-4 h-4 text-paper-dim absolute left-3 top-2.5" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition font-mono"
+                className="w-full pl-9 pr-3 py-2 bg-graphite-950 border border-hairline text-xs text-paper focus:outline-none focus:border-signal-amber transition font-mono"
                 placeholder="••••••••••••"
               />
             </div>
           </div>
 
-          {/* Quick Demo Credential Pills */}
           <div className="pt-1">
-            <p className="text-[11px] text-slate-400 mb-2">Quick Test Accounts:</p>
+            <p className="text-[11px] text-paper-muted mb-2">Quick test accounts</p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setPreset('planner', 'PlannerPass123!')}
-                className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-left transition"
+                className="p-2 bg-graphite-850 hover:bg-graphite-800 border border-hairline text-left transition"
               >
-                <div className="text-[11px] font-semibold text-emerald-400">Demand Planner</div>
-                <div className="text-[10px] text-slate-400 font-mono">planner / PlannerPass123!</div>
+                <div className="text-[11px] font-medium text-paper">Demand planner</div>
+                <div className="text-[10px] text-paper-muted font-mono">planner / PlannerPass123!</div>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPreset('admin', 'AdminPass123!')}
-                className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-left transition"
+                className="p-2 bg-graphite-850 hover:bg-graphite-800 border border-hairline text-left transition"
               >
-                <div className="text-[11px] font-semibold text-teal-400">System Admin</div>
-                <div className="text-[10px] text-slate-400 font-mono">admin / AdminPass123!</div>
+                <div className="text-[11px] font-medium text-paper">System admin</div>
+                <div className="text-[10px] text-paper-muted font-mono">admin / AdminPass123!</div>
               </button>
             </div>
           </div>
@@ -122,15 +117,15 @@ export const LoginModal = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 mt-4"
+            className="w-full py-2.5 bg-signal-amber hover:bg-signal-amber/90 text-graphite-950 font-semibold text-xs transition flex items-center justify-center gap-2 mt-4"
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span className="w-3.5 h-3.5 border-2 border-graphite-950/30 border-t-graphite-950 rounded-full animate-spin"></span>
                 Authenticating...
               </span>
             ) : (
-              <span>Sign In with JWT</span>
+              <span>Sign in with JWT</span>
             )}
           </button>
         </form>
