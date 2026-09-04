@@ -21,9 +21,12 @@ const DashboardContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-graphite-950 text-paper flex flex-col selection:bg-signal-amber selection:text-graphite-950">
       {/* Top Navbar */}
-      <Navbar onOpenLogin={() => setIsLoginOpen(true)} />
+      <Navbar
+        onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenRetrain={() => setIsRetrainOpen(true)}
+      />
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar Navigation */}

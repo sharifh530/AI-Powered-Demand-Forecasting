@@ -3,16 +3,9 @@ import {
   Package,
   Plus,
   Search,
-  Filter,
   RefreshCw,
   Edit2,
-  Trash2,
   CheckCircle2,
-  Sliders,
-  DollarSign,
-  Tag,
-  Clock,
-  Layers,
   X
 } from 'lucide-react';
 import APIService from '../services/api';
@@ -78,13 +71,11 @@ export const SkuManagement = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingProduct) {
-      // Update existing
       setProducts(prev =>
         prev.map(p => (p.sku === editingProduct.sku ? { ...p, ...formData, unit_price: parseFloat(formData.unit_price) } : p))
       );
       showToast(`SKU ${formData.sku} updated successfully.`);
     } else {
-      // Add new
       setProducts(prev => [
         ...prev,
         {
@@ -117,23 +108,23 @@ export const SkuManagement = () => {
   const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       {/* Header Banner */}
-      <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Package className="w-5 h-5 text-emerald-400" />
-            <span>Product Master Catalog & Policy Settings</span>
+          <h2 className="text-sm font-display font-bold text-paper flex items-center gap-2">
+            <Package className="w-4 h-4 text-signal-amber" />
+            <span>Product master catalog &amp; policy settings</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-paper-muted mt-0.5">
             Configure safety stock floors, lead times, and retail unit economics across demand nodes.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={fetchProducts}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5"
+            className="p-2 bg-graphite-800 hover:bg-graphite-850 text-paper-muted border border-hairline text-xs font-medium transition flex items-center gap-1.5"
             title="Refresh Products"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -142,33 +133,33 @@ export const SkuManagement = () => {
 
           <button
             onClick={openAddModal}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow-lg shadow-emerald-600/20 flex items-center gap-2"
+            className="px-4 py-2 bg-signal-amber hover:bg-signal-amber/90 text-graphite-950 text-xs font-semibold transition flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
-            <span>Add New SKU</span>
+            <span>Add new SKU</span>
           </button>
         </div>
       </div>
 
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 animate-in slide-in-from-top-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+        <div className="panel border-l-[3px] border-l-status-healthy p-4 text-status-healthy text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Filter & Search Bar */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="panel p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition capitalize ${
+              className={`px-3 py-1.5 text-xs font-medium whitespace-nowrap transition capitalize ${
                 categoryFilter === cat
-                  ? 'bg-slate-800 text-emerald-400 border border-emerald-500/40'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-signal-amber border-b-2 border-signal-amber'
+                  : 'text-paper-muted hover:text-paper'
               }`}
             >
               {cat}
@@ -177,13 +168,13 @@ export const SkuManagement = () => {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3.5 top-2.5" />
+          <Search className="w-3.5 h-3.5 text-paper-dim absolute left-3.5 top-2.5" />
           <input
             type="text"
             placeholder="Search SKU or name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
+            className="w-full pl-9 pr-3 py-1.5 bg-graphite-950 border border-hairline text-xs text-paper focus:outline-none focus:border-signal-amber font-mono"
           />
         </div>
       </div>
@@ -193,19 +184,19 @@ export const SkuManagement = () => {
         {filteredProducts.map((p) => (
           <div
             key={p.sku}
-            className="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition shadow-xl space-y-3 flex flex-col justify-between"
+            className="panel hover:border-paper-dim/40 transition p-5 space-y-3 flex flex-col justify-between"
           >
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="text-[10px] font-mono text-signal-amber">
                     {p.sku}
                   </span>
-                  <h3 className="text-sm font-bold text-white mt-1.5">{p.name}</h3>
+                  <h3 className="text-sm font-semibold text-paper mt-1">{p.name}</h3>
                 </div>
                 <button
                   onClick={() => openEditModal(p)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+                  className="p-1.5 text-paper-muted hover:text-paper hover:bg-graphite-800 transition"
                   title="Edit SKU Policy"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -213,23 +204,23 @@ export const SkuManagement = () => {
               </div>
 
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-[11px] text-slate-400 font-medium px-2 py-0.5 rounded-md bg-slate-950 border border-slate-800">
+                <span className="text-[11px] text-paper-muted">
                   {p.category}
                 </span>
-                <span className="text-[11px] text-teal-400 font-mono font-bold">
+                <span className="text-[11px] text-paper font-mono font-semibold">
                   ${typeof p.unit_price === 'number' ? p.unit_price.toFixed(2) : p.unit_price} / unit
                 </span>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
-                <p className="text-[10px] text-slate-400">Safety Buffer</p>
-                <p className="font-mono font-bold text-slate-200 mt-0.5">{p.safety_stock || 200} units</p>
+            <div className="pt-3 border-t border-hairline grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 bg-graphite-950 border border-hairline">
+                <p className="text-[10px] text-paper-muted">Safety buffer</p>
+                <p className="font-mono font-semibold text-paper mt-0.5">{p.safety_stock || 200} units</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
-                <p className="text-[10px] text-slate-400">Supplier Lead Time</p>
-                <p className="font-mono font-bold text-slate-200 mt-0.5">{p.lead_time_days || 4} Days</p>
+              <div className="p-2.5 bg-graphite-950 border border-hairline">
+                <p className="text-[10px] text-paper-muted">Supplier lead time</p>
+                <p className="font-mono font-semibold text-paper mt-0.5">{p.lead_time_days || 4} days</p>
               </div>
             </div>
           </div>
@@ -238,46 +229,44 @@ export const SkuManagement = () => {
 
       {/* Add/Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-graphite-950/80">
+          <div className="w-full max-w-md bg-graphite-900 border border-hairline shadow-2xl p-6 relative">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+              className="absolute top-4 right-4 p-1 text-paper-muted hover:text-paper transition"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <Package className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-3 mb-5 pb-4 border-b border-hairline">
+              <Package className="w-5 h-5 text-signal-amber shrink-0" />
               <div>
-                <h2 className="text-lg font-bold text-slate-100">
-                  {editingProduct ? 'Edit SKU Policy' : 'Create New Product SKU'}
+                <h2 className="text-lg font-display font-bold text-paper">
+                  {editingProduct ? 'Edit SKU policy' : 'Create new product SKU'}
                 </h2>
-                <p className="text-xs text-slate-400">Configure catalog metadata and replenishment policies</p>
+                <p className="text-xs text-paper-muted">Configure catalog metadata and replenishment policies</p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">SKU Identifier</label>
+                  <label className="block text-paper-muted font-medium mb-1">SKU identifier</label>
                   <input
                     type="text"
                     value={formData.sku}
                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                     required
                     disabled={!!editingProduct}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono focus:outline-none focus:border-emerald-500 disabled:opacity-60"
+                    className="w-full px-3 py-2 bg-graphite-950 border border-hairline text-paper font-mono focus:outline-none focus:border-signal-amber disabled:opacity-60"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Category</label>
+                  <label className="block text-paper-muted font-medium mb-1">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-graphite-950 border border-hairline text-paper focus:outline-none focus:border-signal-amber"
                   >
                     <option value="Beverages">Beverages</option>
                     <option value="Electronics">Electronics</option>
@@ -288,47 +277,47 @@ export const SkuManagement = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Product Title</label>
+                <label className="block text-paper-muted font-medium mb-1">Product title</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   placeholder="e.g. Organic Matcha Powder (100g)"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-graphite-950 border border-hairline text-paper focus:outline-none focus:border-signal-amber"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Unit Price ($)</label>
+                  <label className="block text-paper-muted font-medium mb-1">Unit price ($)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.unit_price}
                     onChange={(e) => setFormData({ ...formData, unit_price: e.target.value })}
                     required
-                    className="w-full px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono"
+                    className="w-full px-2.5 py-2 bg-graphite-950 border border-hairline text-paper font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Safety Stock</label>
+                  <label className="block text-paper-muted font-medium mb-1">Safety stock</label>
                   <input
                     type="number"
                     value={formData.safety_stock}
                     onChange={(e) => setFormData({ ...formData, safety_stock: e.target.value })}
                     required
-                    className="w-full px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono"
+                    className="w-full px-2.5 py-2 bg-graphite-950 border border-hairline text-paper font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Lead Time (d)</label>
+                  <label className="block text-paper-muted font-medium mb-1">Lead time (d)</label>
                   <input
                     type="number"
                     value={formData.lead_time_days}
                     onChange={(e) => setFormData({ ...formData, lead_time_days: e.target.value })}
                     required
-                    className="w-full px-2.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 font-mono"
+                    className="w-full px-2.5 py-2 bg-graphite-950 border border-hairline text-paper font-mono"
                   />
                 </div>
               </div>
@@ -337,15 +326,15 @@ export const SkuManagement = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition"
+                  className="flex-1 py-2.5 bg-graphite-800 hover:bg-graphite-850 text-paper font-semibold transition border border-hairline"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition shadow-lg shadow-emerald-600/20"
+                  className="flex-1 py-2.5 bg-signal-amber hover:bg-signal-amber/90 text-graphite-950 font-semibold transition"
                 >
-                  {editingProduct ? 'Save Changes' : 'Create SKU'}
+                  {editingProduct ? 'Save changes' : 'Create SKU'}
                 </button>
               </div>
             </form>
