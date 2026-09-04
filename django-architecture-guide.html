@@ -1,0 +1,985 @@
+<title>Django Project Architecture Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-code: #0f172a;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-code: #e2e8f0;
+  --border: #e2e8f0;
+  --accent: #10b981;
+  --accent-bg: #d1fae5;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --purple: #8b5cf6;
+  --purple-bg: #ede9fe;
+  --blue: #3b82f6;
+  --blue-bg: #dbeafe;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-code: #000000;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --text-code: #e2e8f0;
+    --border: #334155;
+    --accent: #10b981;
+    --accent-bg: #064e3b;
+    --warning: #f59e0b;
+    --warning-bg: #78350f;
+    --purple: #a78bfa;
+    --purple-bg: #4c1d95;
+    --blue: #60a5fa;
+    --blue-bg: #1e3a8a;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-code: #000000;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-code: #e2e8f0;
+  --border: #334155;
+  --accent: #10b981;
+  --accent-bg: #064e3b;
+  --warning: #f59e0b;
+  --warning-bg: #78350f;
+  --purple: #a78bfa;
+  --purple-bg: #4c1d95;
+  --blue: #60a5fa;
+  --blue-bg: #1e3a8a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-list a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.nav-list a:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.nav-list a.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.main-content {
+  padding: 3rem 4rem;
+  max-width: 920px;
+}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  text-wrap: balance;
+}
+
+h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 3rem 0 1.25rem;
+  text-wrap: balance;
+}
+
+h2:first-of-type {
+  margin-top: 0;
+}
+
+h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 2rem 0 1rem;
+  text-wrap: balance;
+}
+
+h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 1.5rem 0 0.75rem;
+}
+
+p {
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+  max-width: 70ch;
+}
+
+.callout {
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+}
+
+.callout.warning {
+  border-left-color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.callout h4 {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.code-block {
+  background: var(--bg-code);
+  color: var(--text-code);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+}
+
+.code-block .comment {
+  color: #64748b;
+}
+
+.code-block .keyword {
+  color: #f472b6;
+}
+
+.code-block .string {
+  color: #34d399;
+}
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  background: var(--bg-tertiary);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  color: var(--accent);
+}
+
+.file-tree {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.file-tree pre {
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.file-tree .dir {
+  color: var(--blue);
+  font-weight: 500;
+}
+
+.file-tree .file {
+  color: var(--text-secondary);
+}
+
+.file-tree .important {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.diagram {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  margin: 2rem 0;
+}
+
+.flow-box {
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.flow-box.accent {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.flow-box.purple {
+  border-color: var(--purple);
+  background: var(--purple-bg);
+  color: var(--purple);
+}
+
+.flow-box.blue {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+.arrow {
+  text-align: center;
+  color: var(--text-tertiary);
+  margin: 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+}
+
+.card h4 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.card p {
+  margin-bottom: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.card ul {
+  margin-left: 1.25rem;
+  color: var(--text-secondary);
+}
+
+.card ul li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+details {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+summary::marker {
+  color: var(--accent);
+}
+
+details[open] summary {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+}
+
+thead {
+  background: var(--bg-secondary);
+}
+
+th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+td code {
+  background: var(--bg-tertiary);
+  padding: 0.15em 0.4em;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .main-content {
+    padding: 2rem 1.5rem;
+  }
+}
+</style>
+
+<div class="container">
+  <aside class="sidebar">
+    <h2>Navigation</h2>
+    <ul class="nav-list">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#structure">Project Structure</a></li>
+      <li><a href="#core">Core Configuration</a></li>
+      <li><a href="#apps">Django Apps</a></li>
+      <li><a href="#models">Database Models</a></li>
+      <li><a href="#views">Views & APIs</a></li>
+      <li><a href="#urls">URL Routing</a></li>
+      <li><a href="#ml">ML Engine</a></li>
+      <li><a href="#flow">Request Flow</a></li>
+      <li><a href="#commands">Management Commands</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <h1 id="overview">Django Project Architecture Guide</h1>
+    <p class="subtitle">A beginner-friendly explanation of how the AI-Powered Demand Forecasting platform is structured and how all components connect.</p>
+
+    <div class="callout">
+      <h4>📘 What is Django?</h4>
+      <p>Django is a Python web framework that follows the <strong>MVT (Model-View-Template)</strong> pattern. It handles routing HTTP requests, database interactions, authentication, and API responses. Think of it as the "backend brain" that serves data to the React frontend.</p>
+    </div>
+
+    <h2 id="structure">Project Structure</h2>
+    <p>Django projects are organized into <strong>apps</strong> — self-contained modules that handle specific domains. This project has 5 apps plus a core configuration directory:</p>
+
+    <div class="file-tree">
+<pre><span class="dir">backend/</span>
+├── <span class="dir important">demand_forecast_core/</span>    <span class="comment"># Project settings & main URL router</span>
+│   ├── <span class="important">settings.py</span>             <span class="comment"># Configuration (database, apps, middleware)</span>
+│   ├── <span class="important">urls.py</span>                 <span class="comment"># Main URL routing entry point</span>
+│   └── wsgi.py                   <span class="comment"># Production server gateway</span>
+│
+├── <span class="dir">accounts/</span>                     <span class="comment"># User authentication & RBAC</span>
+├── <span class="dir">forecasting/</span>                  <span class="comment"># ML models, training, forecasts</span>
+├── <span class="dir">inventory/</span>                    <span class="comment"># Stock tracking & alerts</span>
+├── <span class="dir">ingestion/</span>                    <span class="comment"># Data loading & sample data</span>
+├── <span class="dir">analytics/</span>                    <span class="comment"># Feature engineering & aggregations</span>
+│
+├── <span class="file">manage.py</span>                    <span class="comment"># Django CLI (run commands, migrations)</span>
+├── <span class="file">requirements.txt</span>             <span class="comment"># Python dependencies</span>
+└── <span class="file">db.sqlite3</span>                   <span class="comment"># SQLite database (dev environment)</span></pre>
+    </div>
+
+    <h3>Each App Contains:</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>models.py</h4>
+        <p>Defines <strong>database tables</strong> as Python classes. Each class becomes a table; each attribute becomes a column.</p>
+      </div>
+      <div class="card">
+        <h4>views.py</h4>
+        <p>Handles <strong>HTTP requests</strong> and returns responses (JSON for APIs). Contains the business logic.</p>
+      </div>
+      <div class="card">
+        <h4>serializers.py</h4>
+        <p>Converts <strong>database models ↔ JSON</strong>. Validates incoming data and formats outgoing responses.</p>
+      </div>
+      <div class="card">
+        <h4>admin.py</h4>
+        <p>Registers models with Django's <strong>admin panel</strong> (a built-in UI at <code>/admin</code>).</p>
+      </div>
+      <div class="card">
+        <h4>migrations/</h4>
+        <p>Version-controlled <strong>database schema changes</strong>. Auto-generated when you modify models.</p>
+      </div>
+      <div class="card">
+        <h4>management/commands/</h4>
+        <p>Custom <strong>CLI commands</strong> (e.g., <code>python manage.py train_models</code>).</p>
+      </div>
+    </div>
+
+    <h2 id="core">Core Configuration</h2>
+
+    <h3>settings.py — The Control Panel</h3>
+    <p>This file configures everything about your Django project:</p>
+
+    <details>
+      <summary>INSTALLED_APPS — Which modules are active</summary>
+      <div class="code-block">
+<span class="comment"># Django's built-in apps (admin, auth, sessions)</span>
+'django.contrib.admin',
+'django.contrib.auth',
+
+<span class="comment"># Third-party libraries</span>
+'rest_framework',              <span class="comment"># Django REST Framework (builds APIs)</span>
+'rest_framework_simplejwt',    <span class="comment"># JWT token authentication</span>
+'corsheaders',                 <span class="comment"># Cross-Origin Resource Sharing</span>
+
+<span class="comment"># Your custom apps (the 5 modules)</span>
+'accounts',
+'forecasting',
+'inventory',
+'ingestion',
+'analytics',
+      </div>
+    </details>
+
+    <details>
+      <summary>DATABASES — Where data is stored</summary>
+      <div class="code-block">
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  <span class="comment"># File-based database</span>
+    }
+}
+<span class="comment"># Production would use PostgreSQL instead of SQLite</span>
+      </div>
+    </details>
+
+    <details>
+      <summary>REST_FRAMEWORK — API behavior</summary>
+      <div class="code-block">
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',  <span class="comment"># All endpoints require login</span>
+    ],
+    'PAGE_SIZE': 50,  <span class="comment"># Return 50 results per API call</span>
+}
+      </div>
+    </details>
+
+    <details>
+      <summary>SIMPLE_JWT — Token lifetimes</summary>
+      <div class="code-block">
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),     <span class="comment"># Short-lived token</span>
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    <span class="comment"># Long-lived refresh</span>
+    'ROTATE_REFRESH_TOKENS': True,                  <span class="comment"># Issue new refresh on use</span>
+    'BLACKLIST_AFTER_ROTATION': True,               <span class="comment"># Invalidate old tokens</span>
+}
+      </div>
+    </details>
+
+    <h2 id="apps">The 5 Django Apps</h2>
+
+    <div class="card">
+      <h4>1. accounts — User Management</h4>
+      <p><strong>Purpose:</strong> Authentication, authorization, role-based access control.</p>
+      <p><strong>Key Models:</strong></p>
+      <ul>
+        <li><code>User</code> — Custom user model with roles (admin, planner, viewer)</li>
+      </ul>
+      <p><strong>Key Views:</strong></p>
+      <ul>
+        <li><code>register_user</code> — Create new accounts</li>
+        <li><code>login_user</code> — Issue JWT access & refresh tokens</li>
+        <li><code>logout_user</code> — Blacklist tokens</li>
+        <li><code>refresh_token</code> — Exchange refresh token for new access token</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>2. forecasting — ML Core</h4>
+      <p><strong>Purpose:</strong> Model training, inference, forecast storage.</p>
+      <p><strong>Key Models:</strong></p>
+      <ul>
+        <li><code>ProductCategory</code> — Product categories (Electronics, Beverages)</li>
+        <li><code>Product</code> — SKU master data</li>
+        <li><code>Location</code> — Warehouses, stores, distribution centers</li>
+        <li><code>ModelTrainingRun</code> — Tracks each model tournament run</li>
+        <li><code>Forecast</code> — Stores predicted demand with confidence intervals</li>
+        <li><code>ForecastAccuracyRecord</code> — Tracks prediction vs actual</li>
+      </ul>
+      <p><strong>Key Views:</strong></p>
+      <ul>
+        <li><code>ForecastViewSet</code> — List/filter forecasts with <code>summary</code> action</li>
+        <li><code>ModelTrainingRunViewSet</code> — Leaderboard + <code>trigger_training</code> action</li>
+      </ul>
+      <p><strong>ML Engine:</strong></p>
+      <ul>
+        <li><code>forecasting/ml_engine/models.py</code> — 4 model architectures</li>
+        <li><code>forecasting/ml_engine/pipeline.py</code> — Training tournament orchestrator</li>
+        <li><code>forecasting/ml_engine/inference.py</code> — Multi-step forecasting</li>
+        <li><code>forecasting/ml_engine/metrics.py</code> — WAPE, RMSE, MAE, PICP</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>3. inventory — Stock Management</h4>
+      <p><strong>Purpose:</strong> Track on-hand inventory, calculate days-of-supply, generate reorder alerts.</p>
+      <p><strong>Key Models:</strong></p>
+      <ul>
+        <li><code>InventorySnapshot</code> — Daily stock levels per SKU-location</li>
+        <li><code>SafetyStockPolicy</code> — Min/max thresholds</li>
+        <li><code>InventoryTransaction</code> — Movements (receipts, shipments, adjustments)</li>
+      </ul>
+      <p><strong>Key Views:</strong></p>
+      <ul>
+        <li><code>InventorySnapshotViewSet</code> — Current stock levels</li>
+        <li><code>low_stock_alerts</code> — Custom action filtering critical stockout risks</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>4. ingestion — Data Pipeline</h4>
+      <p><strong>Purpose:</strong> Load historical sales data, generate sample datasets.</p>
+      <p><strong>Key Models:</strong></p>
+      <ul>
+        <li><code>SalesTransaction</code> — Historical sales (54,544 rows spanning 2.5 years)</li>
+        <li><code>IngestionLog</code> — Audit trail of data loads</li>
+      </ul>
+      <p><strong>Management Command:</strong></p>
+      <ul>
+        <li><code>populate_sample_data</code> — Seeds database with synthetic data</li>
+      </ul>
+      <p><strong>Service Module:</strong></p>
+      <ul>
+        <li><code>ingestion/services.py</code> — Deterministic data generator with realistic seasonality</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>5. analytics — Feature Engineering</h4>
+      <p><strong>Purpose:</strong> Transform raw sales into ML-ready features.</p>
+      <p><strong>Key Models:</strong></p>
+      <ul>
+        <li><code>DemandHistoryAggregated</code> — Daily/weekly rollups</li>
+        <li><code>TimeSeriesFeatures</code> — 18 features (lags, rolling stats, cyclics)</li>
+      </ul>
+      <p><strong>Features Computed:</strong></p>
+      <ul>
+        <li>Lag features: 7d, 14d, 28d, 84d, 364d demand</li>
+        <li>Rolling statistics: 7d/28d mean & std deviation</li>
+        <li>Calendar: day-of-week, month, quarter, is_weekend</li>
+        <li>Cyclics: sin/cos encoding of day-of-week & month</li>
+        <li>Binary flags: promotion_active, holiday_flag</li>
+      </ul>
+    </div>
+
+    <h2 id="models">Database Models — The Schema</h2>
+    <p>Django models are Python classes that map to database tables. Each class attribute becomes a column, and Django auto-generates SQL migrations.</p>
+
+    <h3>Example: Product Model</h3>
+    <div class="code-block">
+<span class="keyword">class</span> Product(models.Model):
+    sku = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=200)
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+    unit_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    lead_time_days = models.IntegerField()
+
+    <span class="keyword">def</span> __str__(self):
+        <span class="keyword">return</span> <span class="string">f"{self.sku} - {self.name}"</span>
+    </div>
+
+    <div class="callout">
+      <h4>🔗 Relationships Explained</h4>
+      <p><code>ForeignKey</code> creates a <strong>many-to-one</strong> relationship. Many products belong to one category.</p>
+      <p><code>on_delete=models.CASCADE</code> means: "If the category is deleted, delete all its products too."</p>
+    </div>
+
+    <h3>Key Model Relationships</h3>
+    <div class="diagram">
+      <div class="flow-box purple">ProductCategory</div>
+      <div class="arrow">↓ has many</div>
+      <div class="flow-box accent">Product</div>
+      <div class="arrow">↓ sold at many</div>
+      <div class="flow-box blue">Location</div>
+      <div class="arrow">↓ generates</div>
+      <div class="flow-box">SalesTransaction</div>
+      <div class="arrow">↓ aggregated into</div>
+      <div class="flow-box">DemandHistoryAggregated</div>
+      <div class="arrow">↓ engineered into</div>
+      <div class="flow-box">TimeSeriesFeatures</div>
+      <div class="arrow">↓ fed into</div>
+      <div class="flow-box accent">ModelTrainingRun</div>
+      <div class="arrow">↓ produces</div>
+      <div class="flow-box accent">Forecast</div>
+    </div>
+
+    <h2 id="views">Views & APIs — Handling Requests</h2>
+    <p>Django REST Framework provides <strong>ViewSets</strong> — classes that auto-generate CRUD endpoints.</p>
+
+    <h3>Example: ForecastViewSet</h3>
+    <div class="code-block">
+<span class="keyword">class</span> ForecastViewSet(viewsets.ModelViewSet):
+    queryset = Forecast.objects.all()
+    serializer_class = ForecastSerializer
+
+    <span class="comment"># This automatically creates:</span>
+    <span class="comment"># GET    /api/forecasts/          → List all</span>
+    <span class="comment"># POST   /api/forecasts/          → Create new</span>
+    <span class="comment"># GET    /api/forecasts/{id}/     → Retrieve one</span>
+    <span class="comment"># PUT    /api/forecasts/{id}/     → Update</span>
+    <span class="comment"># DELETE /api/forecasts/{id}/     → Delete</span>
+
+    <span class="keyword">def</span> get_queryset(self):
+        <span class="comment"># Filter by query params: ?sku=BEV-001&location=1</span>
+        qs = super().get_queryset()
+        sku = self.request.query_params.get('sku')
+        <span class="keyword">if</span> sku:
+            qs = qs.filter(product__sku=sku)
+        <span class="keyword">return</span> qs
+    </div>
+
+    <h3>Custom Actions</h3>
+    <p>ViewSets can add custom endpoints beyond CRUD:</p>
+    <div class="code-block">
+@action(detail=False, methods=['get'])
+<span class="keyword">def</span> summary(self, request):
+    <span class="comment"># Custom endpoint: GET /api/forecasts/summary/</span>
+    forecasts = self.get_queryset()
+    summary_data = {
+        'total_forecasts': forecasts.count(),
+        'avg_demand': forecasts.aggregate(Avg('predicted_demand'))
+    }
+    <span class="keyword">return</span> Response(summary_data)
+    </div>
+
+    <h2 id="urls">URL Routing — Connecting Endpoints</h2>
+    <p>Django uses <code>urls.py</code> to map URL patterns to views. The project has a <strong>two-level routing system</strong>:</p>
+
+    <h3>1. Main Router (demand_forecast_core/urls.py)</h3>
+    <div class="code-block">
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include
+<span class="keyword">from</span> rest_framework.routers <span class="keyword">import</span> DefaultRouter
+
+router = DefaultRouter()
+router.register(r'forecasts', ForecastViewSet, basename='forecast')
+router.register(r'products', ProductViewSet, basename='product')
+
+urlpatterns = [
+    path('api/auth/login/', login_user, name='login'),
+    path('api/', include(router.urls)),  <span class="comment"># Include all router URLs</span>
+]
+    </div>
+
+    <h3>2. How URLs Resolve</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>HTTP Request</th>
+          <th>URL Pattern</th>
+          <th>View Function</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>POST /api/auth/login/</code></td>
+          <td><code>api/auth/login/</code></td>
+          <td><code>login_user</code></td>
+          <td>Issue JWT tokens</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/forecasts/</code></td>
+          <td><code>api/forecasts/</code></td>
+          <td><code>ForecastViewSet.list</code></td>
+          <td>Return paginated forecasts</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/forecasts/123/</code></td>
+          <td><code>api/forecasts/{pk}/</code></td>
+          <td><code>ForecastViewSet.retrieve</code></td>
+          <td>Return one forecast</td>
+        </tr>
+        <tr>
+          <td><code>GET /api/forecasts/summary/</code></td>
+          <td><code>api/forecasts/summary/</code></td>
+          <td><code>ForecastViewSet.summary</code></td>
+          <td>Custom aggregation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="ml">ML Engine — The Forecasting Brain</h2>
+    <p>The ML engine lives in <code>forecasting/ml_engine/</code> and orchestrates model training & inference independently of Django's web layer.</p>
+
+    <h3>Architecture</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>models.py</h4>
+        <p>Implements 4 model classes:</p>
+        <ul>
+          <li><code>WeightedMovingAverageModel</code></li>
+          <li><code>HoltWintersModel</code></li>
+          <li><code>HistGradientBoostingModel</code></li>
+          <li><code>StackedMLPModel</code></li>
+        </ul>
+        <p>Each has <code>.fit(X, y)</code> and <code>.predict(X)</code> methods.</p>
+      </div>
+      <div class="card">
+        <h4>pipeline.py</h4>
+        <p>Tournament orchestrator:</p>
+        <ul>
+          <li>Split data into train/holdout by date</li>
+          <li>Train all 4 models in parallel</li>
+          <li>Evaluate on holdout set</li>
+          <li>Tag champion (lowest WAPE)</li>
+          <li>Save results to <code>ModelTrainingRun</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>inference.py</h4>
+        <p>Multi-step forecasting:</p>
+        <ul>
+          <li>Load champion model from disk</li>
+          <li>Generate 14-day rolling forecasts</li>
+          <li>Compute 90% confidence intervals</li>
+          <li>Save 784 forecasts (8 SKUs × 7 locs × 14 days)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>metrics.py</h4>
+        <p>Evaluation functions:</p>
+        <ul>
+          <li><code>wape()</code> — Weighted Absolute % Error</li>
+          <li><code>rmse()</code> — Root Mean Squared Error</li>
+          <li><code>mae()</code> — Mean Absolute Error</li>
+          <li><code>picp()</code> — Prediction Interval Coverage</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 id="flow">Complete Request Flow</h2>
+    <p>Here's what happens when the React frontend requests <code>GET /api/forecasts/?sku=BEV-001</code>:</p>
+
+    <div class="diagram">
+      <div class="flow-box blue">1. Browser sends request with JWT token</div>
+      <div class="arrow">↓</div>
+      <div class="flow-box">2. Django middleware validates JWT</div>
+      <div class="arrow">↓</div>
+      <div class="flow-box">3. URL router matches <code>/api/forecasts/</code></div>
+      <div class="arrow">↓</div>
+      <div class="flow-box purple">4. ForecastViewSet.list() called</div>
+      <div class="arrow">↓</div>
+      <div class="flow-box">5. Filters queryset by <code>sku=BEV-001</code></div>
+      <div class="arrow">↓</div>
+      <div class="flow-box">6. Queries database: <code>SELECT * FROM forecasts WHERE...</code></div>
+      <div class="arrow">↓</div>
+      <div class="flow-box accent">7. ForecastSerializer converts models → JSON</div>
+      <div class="arrow">↓</div>
+      <div class="flow-box">8. Response middleware adds CORS headers</div>
+      <div class="arrow">↓</div>
+      <div class="flow-box blue">9. JSON response sent to browser</div>
+    </div>
+
+    <h2 id="commands">Management Commands</h2>
+    <p>Django lets you write custom CLI commands in <code>management/commands/</code>. This project has 3 critical ones:</p>
+
+    <h3>1. populate_sample_data</h3>
+    <div class="code-block">
+python manage.py populate_sample_data
+    </div>
+    <p><strong>What it does:</strong> Seeds the database with 54,544 synthetic sales transactions, 8 products, 7 locations, and computes time-series features.</p>
+    <p><strong>Location:</strong> <code>ingestion/management/commands/populate_sample_data.py</code></p>
+
+    <h3>2. train_models</h3>
+    <div class="code-block">
+python manage.py train_models --split-date 2026-07-01
+    </div>
+    <p><strong>What it does:</strong> Runs the ML tournament — trains all 4 models, evaluates on holdout, saves results to <code>ModelTrainingRun</code>.</p>
+    <p><strong>Location:</strong> <code>forecasting/management/commands/train_models.py</code></p>
+
+    <h3>3. generate_forecasts</h3>
+    <div class="code-block">
+python manage.py generate_forecasts --horizon 14
+    </div>
+    <p><strong>What it does:</strong> Loads the champion model, generates 14-day forecasts for all SKU-location pairs, saves to <code>Forecast</code> table.</p>
+    <p><strong>Location:</strong> <code>forecasting/management/commands/generate_forecasts.py</code></p>
+
+    <div class="callout warning">
+      <h4>⚠️ Command Execution Order</h4>
+      <p>Always run in this sequence:</p>
+      <ol style="margin-left: 1.25rem; color: var(--text-secondary);">
+        <li><code>python manage.py migrate</code> — Create database tables</li>
+        <li><code>python manage.py populate_sample_data</code> — Load data</li>
+        <li><code>python manage.py train_models</code> — Train ML models</li>
+        <li><code>python manage.py generate_forecasts</code> — Produce forecasts</li>
+        <li><code>python manage.py runserver</code> — Start API server</li>
+      </ol>
+    </div>
+
+    <h2>Key Takeaways</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Django's Role</h4>
+        <p>Django is the <strong>backend server</strong> that:</p>
+        <ul>
+          <li>Stores data in a database (SQLite/PostgreSQL)</li>
+          <li>Exposes RESTful JSON APIs</li>
+          <li>Handles authentication (JWT tokens)</li>
+          <li>Runs ML training & inference pipelines</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>React's Role</h4>
+        <p>React is the <strong>frontend dashboard</strong> that:</p>
+        <ul>
+          <li>Sends HTTP requests to Django APIs</li>
+          <li>Displays forecasts in interactive charts</li>
+          <li>Manages user login state (localStorage)</li>
+          <li>Provides CRUD interfaces for SKUs/inventory</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>🎓 Next Steps</h4>
+      <p>To dive deeper:</p>
+      <ul style="margin-left: 1.25rem; color: var(--text-secondary);">
+        <li>Read <code>docs/ARCHITECTURE.md</code> for system-level design</li>
+        <li>Read <code>docs/API_SPECIFICATION.md</code> for endpoint details</li>
+        <li>Explore <code>forecasting/ml_engine/</code> for ML internals</li>
+        <li>Check Django's official tutorial: <a href="https://docs.djangoproject.com/en/stable/intro/tutorial01/" target="_blank" style="color: var(--accent);">djangoproject.com</a></li>
+      </ul>
+    </div>
+  </main>
+</div>
+
+<script>
+// Smooth scroll for navigation links
+document.querySelectorAll('.nav-list a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Update active state
+    document.querySelectorAll('.nav-list a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Intersection observer for active nav state
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.nav-list a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('id');
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${id}`) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+}, { threshold: 0.5, rootMargin: '-100px 0px -80% 0px' });
+
+sections.forEach(section => observer.observe(section));
+</script>
